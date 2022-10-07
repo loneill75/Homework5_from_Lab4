@@ -1,0 +1,65 @@
+---
+title: "Lab HW 4"
+output: GitHub
+date: "2022-09-22"
+Group: Valery Delgado, Liam O'Neill, Holli Tai
+---
+
+```{r}
+load("acs2017_ny_data.RData")
+```
+
+
+```
+Changed the ages between 21 and 45 in the labar force.
+```
+```{r}
+attach(acs2017_ny)
+use_varb <- (AGE >= 21) & (AGE <= 45) & (LABFORCE == 2) & (WKSWORK2 > 4) & (UHRSWORK >= 35)
+dat_use <- subset(acs2017_ny,use_varb)
+detach()
+attach(dat_use)
+```
+
+```
+Main focus of code - comparing education/degree filed with income.
+```
+```{r}
+is.na(DEGFIELD) <- which(DEGFIELD == 9999999)
+model_temp1 <- lm(HHINCOME ~ RACE + DEGFIELD + educ_college + educ_advdeg)
+summary(model_temp1)
+#plot(model_temp1)
+```
+
+
+```{r}
+#install.packages("staargazer")
+require(stargazer)
+stargazer(model_temp1, type = "text")
+
+require(AER)
+```
+
+```
+subset in order to plot
+```
+```{r}
+NNobs <- length(INCWAGE)
+set.seed(12345)
+graph_obs <- (runif(NNobs) < 0.1)
+dat_graph <-subset(dat_use,graph_obs)
+
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), data = dat_graph)
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,150000), data = dat_graph)
+```
+
+```{r}
+at_NYC <- subset(acs2017_ny, (acs2017_ny$in_NYC == 1)&(acs2017_ny$AGE > 20) & (acs2017_ny$AGE < 66))
+attach(acs2017_ny)
+borough_f <- factor((in_Bronx + 2*in_Manhattan + 3*in_StatenI + 4*in_Brooklyn + 5*in_Queens), levels=c(1,2,3,4,5),labels = c("Bronx","Manhattan","Staten Island","Brooklyn","Queens"))
+```
+
+
+```{r}
+detach()
+```
